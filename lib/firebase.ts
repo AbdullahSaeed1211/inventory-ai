@@ -1,11 +1,11 @@
-// Import the functions you need from the SDKs you need
+// lib/firebase.ts
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc, query } from "firebase/firestore";
+
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
@@ -23,4 +23,30 @@ const auth = getAuth(app);
 const firestore = getFirestore(app);
 
 const googleProvider = new GoogleAuthProvider();
-export { auth, firestore, googleProvider };
+
+export { auth, firestore, googleProvider, analytics };
+
+// Utility functions
+export const addItem = async (name: string, quantity: number, category: string) => {
+  const itemRef = doc(collection(firestore, 'inventory'), name);
+  await setDoc(itemRef, {
+    name,
+    quantity,
+    category,
+    date: new Date(),
+  });
+};
+
+export const removeItem = async (name: string) => {
+  const itemRef = doc(firestore, 'inventory', name);
+  await deleteDoc(itemRef);
+};
+
+export const getInventory = async () => {
+  const snapshot = query(collection(firestore, 'inventory'));
+  const docs = await getDocs(snapshot);
+  return docs.docs.map((doc) => ({
+    name: doc.id,
+    ...(doc.data() as { quantity: number; category: string; date: { seconds: number } }),
+  }));
+};
