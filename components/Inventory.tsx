@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Box, Button, Modal, Stack, TextField, Typography } from "@mui/material";
+import { Box, Modal, Stack, TextField, Typography } from "@mui/material";
 import { collection, doc, getDocs, query, setDoc, deleteDoc, getDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import InventoryList from "@/components/InventoryList";
 import { InventoryItem } from "@/types";
+import { Button } from "@/components/ui/button";
 
 // Modal styling
 const style = {
@@ -14,12 +15,13 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: 400,
   bgcolor: "white",
-  border: "2px solid #000",
+  border: "0px solid #000",
   boxShadow: 24,
   p: 4,
   display: "flex",
   flexDirection: "column",
   gap: 3,
+  borderRadius: 3,
 };
 
 const InventoryTable: React.FC = () => {
@@ -123,7 +125,7 @@ const InventoryTable: React.FC = () => {
               disabled
             />
             <Button
-              variant="outlined"
+              variant="default"
               onClick={addItem}
             >
               Add
@@ -142,7 +144,7 @@ const InventoryTable: React.FC = () => {
         mb={2} // Add margin-bottom for spacing
       >
         <Typography variant="h5">Inventory</Typography>
-        <Button variant="contained" onClick={handleOpen}>
+        <Button variant="default" onClick={handleOpen}>
           Add New Item
         </Button>
       </Box>

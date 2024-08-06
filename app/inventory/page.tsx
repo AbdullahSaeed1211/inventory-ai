@@ -6,7 +6,10 @@ import { onAuthStateChanged } from "firebase/auth";
 import InventoryTable from "@/components/Inventory";
 
 export default function Home() {
-  const [user, setUser] = useState<null | { displayName: string; email: string }>(null);
+  const [user, setUser] = useState<null | {
+    displayName: string;
+    email: string;
+  }>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,34 +22,33 @@ export default function Home() {
       } else {
         setUser(null);
       }
-      setLoading(false); 
+      setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
   if (loading) {
-    return <Box>Loading...</Box>; 
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Loading...
+      </div>
+    );
   }
 
   if (user) {
     return (
-      <Box
-        width="100vw"
-        height="100vh"
-        display="flex"
-        justifyContent="center"
-        flexDirection="column"
-        alignItems="center"
-        gap={2}>
-        <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
-          <Typography variant="h5">Welcome, {user.displayName}!</Typography>
-        </Box>
-
-        <InventoryTable />
-      </Box>
+      <div className="max-w-7xl mx-auto sm:p-4 p-20">
+        <div className="flex flex-col items-center justify-start  p-2">
+          <InventoryTable />
+        </div>
+      </div>
     );
   } else {
-    return <Box>Please Sign in first...</Box>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Please Sign in first...
+      </div>
+    );
   }
 }
