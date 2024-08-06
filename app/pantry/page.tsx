@@ -1,5 +1,4 @@
-"use client";
-
+'use client'
 import { useState, useEffect } from "react";
 import {
   Box,
@@ -26,6 +25,7 @@ interface InventoryItem {
   quantity: number;
 }
 import { SxProps, Theme } from "@mui/material/styles";
+import SignInScreen from "@/components/SignInScreen";
 
 const style: SxProps<Theme> = {
   position: "absolute",
@@ -41,7 +41,6 @@ const style: SxProps<Theme> = {
   flexDirection: "column",
   gap: 3,
 };
-
 
 export default function Home() {
   const [user, setUser] = useState<null | { displayName: string; email: string }>(null);
@@ -75,14 +74,6 @@ export default function Home() {
 
     return () => unsubscribe();
   }, []);
-
-  const handleGoogleSignIn = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      console.error("Error signing in with Google:", error);
-    }
-  };
 
   const handleSignOut = async () => {
     try {
@@ -123,6 +114,10 @@ export default function Home() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  if (!user) {
+    return <SignInScreen />;
+  }
+
   return (
     <Box
       width="100vw"
@@ -133,18 +128,12 @@ export default function Home() {
       alignItems="center"
       gap={2}
     >
-      {user ? (
-        <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
-          <Typography variant="h5">Welcome, {user.displayName}!</Typography>
-          <Button variant="contained" onClick={handleSignOut}>
-            Sign Out
-          </Button>
-        </Box>
-      ) : (
-        <Button variant="contained" onClick={handleGoogleSignIn}>
-          Sign In with Google
+      <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
+        <Typography variant="h5">Welcome, {user.displayName}!</Typography>
+        <Button variant="contained" onClick={handleSignOut}>
+          Sign Out
         </Button>
-      )}
+      </Box>
       <Modal
         open={open}
         onClose={handleClose}
@@ -177,7 +166,7 @@ export default function Home() {
           </Stack>
         </Box>
       </Modal>
-      <Button variant="contained" onClick={handleOpen} disabled={!user}>
+      <Button variant="contained" onClick={handleOpen}>
         Add New Item
       </Button>
       <Box border="1px solid #333">
@@ -211,7 +200,7 @@ export default function Home() {
               <Typography variant="h3" color="#333" textAlign="center">
                 Quantity: {quantity}
               </Typography>
-              <Button variant="contained" onClick={() => removeItem(name)} disabled={!user}>
+              <Button variant="contained" onClick={() => removeItem(name)}>
                 Remove
               </Button>
             </Box>
