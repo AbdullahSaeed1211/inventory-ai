@@ -7,7 +7,7 @@ import AnimatedShinyText from "@/components/magicui/animated-shiny-text";
 
 export default function LandingPage() {
   return (
-    <div className="h-screen w-full bg-black bg-dot-white/[0.2] relative flex flex-col items-center justify-center mt-10">
+    <div className="max-w-9xl mx-auto h-screen w-full bg-black bg-dot-white/[0.2] relative flex flex-col items-center justify-start lg:mt-10 p-[20px] lg:p-20">
       {/* Radial gradient for the container to give a faded look */}
       <div className="absolute inset-0 flex items-center justify-center bg-black [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
 
@@ -21,12 +21,12 @@ export default function LandingPage() {
         </div>
 
         {/* Heading */}
-        <p className="lg:text-8xl text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-200 to-neutral-500">
+        <p className="lg:text-8xl sm:text-5xl text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-200 to-neutral-500">
           Your Ultimate Tool for Smart Inventory Management
         </p>
 
         {/* Subheading */}
-        <p className="text-neutral-400 lg:text-xl text-lg">
+        <p className="text-neutral-400 lg:text-xl sm:text-lg ">
           Transform how you manage your inventory with AI-powered insights.
         </p>
 
