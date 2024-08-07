@@ -5,8 +5,8 @@ import { Linkedin, Github } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-black text-white py-6 lg:py-8">
-      <div className="max-w-7xl mx-auto px-4">
+    <footer className="bg-black text-white py-6 lg:pt-8 lg:mt-20">
+      <div className="max-w-7xl mx-auto px-4 lg:mt-20">
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
           {/* Brand Section */}
           <div className="text-center md:text-left">

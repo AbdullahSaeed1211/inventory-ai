@@ -1,9 +1,8 @@
-// lib/firebase.ts
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc, query } from "firebase/firestore";
-
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -21,32 +20,50 @@ const app = initializeApp(firebaseConfig);
 const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 const auth = getAuth(app);
 const firestore = getFirestore(app);
+const storage = getStorage(app);
 
 const googleProvider = new GoogleAuthProvider();
 
-export { auth, firestore, googleProvider, analytics };
+export { auth, firestore, googleProvider, analytics, storage };
 
 // Utility functions
-export const addItem = async (name: string, quantity: number, category: string) => {
+
+// Add or update an inventory item
+export const addItem = async (name: string, quantity: number, category: string, price: number, image?: File) => {
   const itemRef = doc(collection(firestore, 'inventory'), name);
+
+  // If there's an image, upload it and get the URL
+  let imageUrl: string | undefined = undefined;
+  if (image) {
+    const storageRef = ref(storage, `images/${name}`);
+    await uploadBytes(storageRef, image);
+    imageUrl = await getDownloadURL(storageRef);
+    console.log('Uploaded image:', imageUrl);
+  }
+
   await setDoc(itemRef, {
     name,
     quantity,
     category,
+    price,
     date: new Date(),
+    imageUrl, // Store the image URL if available
   });
 };
 
+// Remove an inventory item
 export const removeItem = async (name: string) => {
   const itemRef = doc(firestore, 'inventory', name);
   await deleteDoc(itemRef);
 };
 
+
+// Retrieve all inventory items
 export const getInventory = async () => {
   const snapshot = query(collection(firestore, 'inventory'));
   const docs = await getDocs(snapshot);
   return docs.docs.map((doc) => ({
     name: doc.id,
-    ...(doc.data() as { quantity: number; category: string; date: { seconds: number } }),
+    ...(doc.data() as { quantity: number; category: string; price: number; date: { seconds: number }; imageUrl?: string }),
   }));
 };
