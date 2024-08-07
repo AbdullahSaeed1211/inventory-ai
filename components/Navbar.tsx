@@ -81,12 +81,12 @@ const Navbar = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
-                <a
-                  href="/profile"
+                <Link
+                  href="/inventory"
                   className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md">
                   <PersonIcon className="w-4 h-4" />
-                  <span>Profile</span>
-                </a>
+                  <span>Inventory</span>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleSignOut}>
                 <div className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md">
