@@ -1,7 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
-import { collection, doc, getDocs, query, setDoc, deleteDoc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  deleteDoc,
+  getDoc,
+  writeBatch // Import writeBatch
+} from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import InventoryList from "@/components/InventoryList";
 import { InventoryItem } from "@/types";
@@ -86,11 +95,13 @@ const InventoryTable: React.FC = () => {
     try {
       const snapshot = query(collection(firestore, "inventory"));
       const docs = await getDocs(snapshot);
-      const batch = firestore.batch();
+      const batch = writeBatch(firestore); // Use writeBatch to create a batch instance
+
       docs.forEach((doc) => {
         batch.delete(doc.ref);
       });
-      await batch.commit();
+
+      await batch.commit(); // Commit all batched operations
       await updateInventory();
     } catch (error) {
       console.error("Failed to delete all items:", error);
