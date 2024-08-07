@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Webcam from "react-webcam";
 import Image from "next/image";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 interface InventoryModalProps {
   isOpen: boolean;
@@ -43,8 +44,27 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
   const [confirmCapture, setConfirmCapture] = useState(false);
   const webcamRef = useRef<Webcam>(null);
 
-  const handleAdd = () => {
-    onAddItem({ itemName, quantity, price, date, image });
+  const handleAdd = async () => {
+    let imageUrl: string | undefined;
+  
+    if (image) {
+      // Optionally upload image to Firebase if needed
+      const storage = getStorage();
+      const storageRef = ref(storage, `images/${image.name}`);
+      try {
+        console.log('Uploading image...'); // Debugging
+        await uploadBytes(storageRef, image);
+        imageUrl = await getDownloadURL(storageRef);
+        console.log('Uploaded image URL:', imageUrl); // Debugging
+      } catch (error) {
+        console.error('Image upload failed', error); // Debugging
+      }
+    }
+  
+    // Use the uploaded image URL or pass it to onAddItem
+    onAddItem({ itemName, quantity, price, date, image: imageUrl ? new File([], imageUrl) : undefined });
+  
+    // Reset states
     setItemName("");
     setQuantity(1);
     setPrice(0);
@@ -56,20 +76,43 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
   };
 
   const handleImageUpload = (files: FileList | null) => {
-    if (files) {
-      setImage(files[0]);
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith("image/") && file.size <= 5 * 1024 * 1024) {
+        // 5MB limit
+        setImage(file);
+        setImagePreview(URL.createObjectURL(file)); // Update preview URL
+        setUseCamera(false); // Disable camera if an image is uploaded from PC
+      } else {
+        alert("Please select a valid image file (less than 5MB).");
+      }
     }
   };
 
-  const handleCapture = useCallback(() => {
+  const handleCapture = useCallback(async () => {
     const imageSrc = webcamRef.current?.getScreenshot();
     if (imageSrc) {
       const blob = dataURItoBlob(imageSrc);
-      const file = new File([blob], "captured_photo.jpg", { type: "image/jpeg" });
-      setImagePreview(imageSrc); // Set the preview
-      setImage(file);
-      setConfirmCapture(true);
-      setUseCamera(false);
+      const file = new File([blob], "captured_photo.jpg", {
+        type: "image/jpeg",
+      });
+
+      // Initialize Firebase Storage
+      const storage = getStorage();
+      const storageRef = ref(storage, `images/${file.name}`);
+
+      try {
+        console.log("Uploading image..."); // Debugging
+        await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(storageRef);
+        console.log("Uploaded image URL:", url); // Debugging
+        setImagePreview(url); // Update preview
+        setImage(file); // Set image state
+        setConfirmCapture(true);
+        setUseCamera(false);
+      } catch (error) {
+        console.error("Image upload failed", error); // Debugging
+      }
     }
   }, [webcamRef]);
 
@@ -156,24 +199,25 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
               <Input
                 id="image"
                 type="file"
+                accept="image/*" // Ensure only image files can be selected
                 onChange={(e) => handleImageUpload(e.target.files)}
                 className="mt-1 bg-gray-700 text-white"
               />
             </div>
             <div className="mt-4 flex space-x-2">
-              <Button
-                type="button"
-                onClick={() => setUseCamera(true)}
-                className="bg-green-500 hover:bg-green-600 text-white"
-              >
-                Take Photo
-              </Button>
+              {!image && (
+                <Button
+                  type="button"
+                  onClick={() => setUseCamera(true)}
+                  className="bg-green-500 hover:bg-green-600 text-white">
+                  Take Photo
+                </Button>
+              )}
               {useCamera && (
                 <Button
                   type="button"
                   onClick={() => setUseCamera(false)}
-                  className="bg-gray-500 hover:bg-gray-600 text-white"
-                >
+                  className="bg-gray-500 hover:bg-gray-600 text-white">
                   Cancel
                 </Button>
               )}
@@ -193,8 +237,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                 <Button
                   type="button"
                   onClick={handleCapture}
-                  className="bg-green-500 hover:bg-green-600 text-white"
-                >
+                  className="bg-green-500 hover:bg-green-600 text-white">
                   Capture
                 </Button>
               </div>
@@ -203,20 +246,30 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
 
           {confirmCapture && (
             <div className="mt-4 md:mt-0 flex flex-col items-center">
-              <Image src={imagePreview || ""} alt="Preview" className="w-full h-1/2 max-w-xs" width='10' height='10' />
+              {imagePreview ? (
+                <Image
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-full h-auto max-w-xs"
+                  width={200}
+                  height={200}
+                />
+              ) : (
+                <div className="w-full h-auto max-w-xs bg-gray-800 flex items-center justify-center">
+                  No Preview Available
+                </div>
+              )}
               <div className="mt-4 flex space-x-2">
                 <Button
                   type="button"
                   onClick={() => setConfirmCapture(false)}
-                  className="bg-gray-500 hover:bg-gray-600 text-white"
-                >
+                  className="bg-gray-500 hover:bg-gray-600 text-white">
                   Retake
                 </Button>
                 <Button
                   type="button"
-                  onClick={() => handleAdd()}
-                  className="bg-blue-500 hover:bg-blue-600 text-white"
-                >
+                  onClick={handleAdd}
+                  className="bg-blue-500 hover:bg-blue-600 text-white">
                   Confirm
                 </Button>
               </div>
@@ -227,8 +280,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
           <Button
             onClick={handleAdd}
             className="bg-blue-500 hover:bg-blue-600 text-white"
-            disabled={itemName === "" || quantity <= 0 || price < 0}
-          >
+            disabled={itemName === "" || quantity <= 0 || price < 0}>
             Add
           </Button>
           <Button onClick={onClose} variant="secondary">

@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc, query } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -36,19 +36,28 @@ export const addItem = async (name: string, quantity: number, category: string, 
   let imageUrl: string | undefined = undefined;
   if (image) {
     const storageRef = ref(storage, `images/${name}`);
-    await uploadBytes(storageRef, image);
-    imageUrl = await getDownloadURL(storageRef);
-    console.log('Uploaded image:', imageUrl);
+    try {
+      await uploadBytes(storageRef, image);
+      imageUrl = await getDownloadURL(storageRef);
+      console.log('Uploaded image URL:', imageUrl); // Debugging
+    } catch (error) {
+      console.error('Error uploading image:', error); // Debugging
+    }
   }
 
-  await setDoc(itemRef, {
-    name,
-    quantity,
-    category,
-    price,
-    date: new Date(),
-    imageUrl, // Store the image URL if available
-  });
+  try {
+    await setDoc(itemRef, {
+      name,
+      quantity,
+      category,
+      price,
+      date: new Date(),
+      imageUrl,
+    });
+    console.log('Item added successfully'); // Debugging
+  } catch (error) {
+    console.error('Error adding item to Firestore:', error); // Debugging
+  }
 };
 
 // Remove an inventory item
@@ -56,7 +65,6 @@ export const removeItem = async (name: string) => {
   const itemRef = doc(firestore, 'inventory', name);
   await deleteDoc(itemRef);
 };
-
 
 // Retrieve all inventory items
 export const getInventory = async () => {
