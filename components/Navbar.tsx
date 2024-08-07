@@ -74,7 +74,7 @@ const Navbar = () => {
                     className="rounded-full border border-gray-300"
                   />
                 )}
-                <span className="text-lg font-semibold text-white">
+                <span className="text-lg font-semibold text-white hidden md:block">
                   {user.displayName}
                 </span>
               </div>
