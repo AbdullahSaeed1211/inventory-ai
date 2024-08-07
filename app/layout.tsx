@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <script src="./node_modules/preline/dist/preline.js" async />
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-black`}>
         <Navbar />
         {children}
       </body>

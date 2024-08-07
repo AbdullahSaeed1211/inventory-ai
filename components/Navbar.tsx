@@ -12,9 +12,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { PersonIcon, ExitIcon } from "@radix-ui/react-icons";
 import ShimmerButton from "@/components/magicui/shimmer-button";
+import Link from "next/link";
 
 const Navbar = () => {
-  const [user, setUser] = useState<null | { displayName: string; photoURL: string }>(null);
+  const [user, setUser] = useState<null | {
+    displayName: string;
+    photoURL: string;
+  }>(null);
   const router = useRouter();
   const googleProvider = new GoogleAuthProvider(); // Initialize Google Auth Provider
 
@@ -43,20 +47,18 @@ const Navbar = () => {
   };
 
   const handleSignIn = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-      router.push("/"); // Redirect to home after sign-in
-    } catch (error) {
-      console.error("Error signing in:", error);
-    }
+      router.push("/signin"); // Redirect to home after sign-in
+    
   };
 
   return (
-    <nav className="relative bg-black bg-dot-white/[0.2] flex items-center justify-between p-4 shadow-md">
+    <nav className="relative bg-black bg-dot-white/[0.2] flex items-center justify-between p-4 shadow-md  mx-auto">
       {/* Radial gradient for the navbar */}
       <div className="absolute inset-0 pointer-events-none bg-black [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
       <div className="text-3xl font-bold z-10 bg-clip-text text-transparent bg-gradient-to-b from-neutral-200 to-neutral-500">
-        Inventory <span className="text-[#0284c7]">AI</span>
+        <Link href="/">
+          Inventory <span className="text-[#0284c7]">AI</span>
+        </Link>
       </div>
       <div className="flex items-center gap-4 z-10">
         {user ? (
@@ -72,12 +74,16 @@ const Navbar = () => {
                     className="rounded-full border border-gray-300"
                   />
                 )}
-                <span className="text-lg font-semibold text-white">{user.displayName}</span>
+                <span className="text-lg font-semibold text-white">
+                  {user.displayName}
+                </span>
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
-                <a href="/profile" className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md">
+                <a
+                  href="/profile"
+                  className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md">
                   <PersonIcon className="w-4 h-4" />
                   <span>Profile</span>
                 </a>
@@ -98,8 +104,7 @@ const Navbar = () => {
             shimmerDuration="3s"
             borderRadius="100px"
             background="rgba(0, 0, 1, 1)"
-            className="flex items-center gap-2 px-4 py-2 text-white rounded-md border-blue-800 "
-          >
+            className="flex items-center gap-2 px-4 py-2 text-white rounded-md border-blue-800 ">
             <PersonIcon className="w-4 h-4" />
             <span>Sign In</span>
           </ShimmerButton>

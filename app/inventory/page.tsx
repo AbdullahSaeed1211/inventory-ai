@@ -1,9 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Box, Typography } from "@mui/material";
 import { auth } from "@/lib/firebase";
+
 import { onAuthStateChanged } from "firebase/auth";
 import InventoryTable from "@/components/Inventory";
+import ShimmerButton from "@/components/magicui/shimmer-button";
+
+const handleSigninPage = () => {
+  window.location.href = "/signin";}
 
 export default function Home() {
   const [user, setUser] = useState<null | {
@@ -46,8 +50,11 @@ export default function Home() {
     );
   } else {
     return (
-      <div className="flex items-center justify-center h-screen">
-        Please Sign in first...
+      <div className="h-screen flex flex-col items-center justify-center text-center bg-black text-white">
+        <h2 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-200 to-neutral-500 mb-7">
+          Sign In to View Your Inventory
+        </h2>
+       
       </div>
     );
   }
