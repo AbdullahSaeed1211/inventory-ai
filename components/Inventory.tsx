@@ -35,7 +35,6 @@ const InventoryTable: React.FC = () => {
     }
   };
 
-
   useEffect(() => {
     updateInventory();
   }, []);
@@ -92,15 +91,24 @@ const InventoryTable: React.FC = () => {
     }
   };
 
-  const decrementQuantity = (name: string) => {
-    setInventory((prevInventory) =>
-      prevInventory.map((item) =>
-        item.name === name
-          ? { ...item, quantity: item.quantity > 1 ? item.quantity - 1 : 0 }
-          : item
-      )
-    );
-  }; 
+  const decrementQuantity = async (name: string) => {
+    if (!name) return;
+    try {
+      const docRef = doc(collection(firestore, "inventory"), name);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const { quantity: existingQuantity } = docSnap.data() as { quantity: number };
+        if (existingQuantity > 1) {
+          await setDoc(docRef, { quantity: existingQuantity - 1 }, { merge: true });
+        } else {
+          await removeItem(name);
+        }
+        await updateInventory();
+      }
+    } catch (error) {
+      console.error("Failed to decrement quantity:", error);
+    }
+  };
 
   const deleteAll = async () => {
     try {
