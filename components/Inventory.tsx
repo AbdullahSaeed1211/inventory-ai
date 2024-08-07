@@ -35,6 +35,7 @@ const InventoryTable: React.FC = () => {
     }
   };
 
+
   useEffect(() => {
     updateInventory();
   }, []);
@@ -91,6 +92,16 @@ const InventoryTable: React.FC = () => {
     }
   };
 
+  const decrementQuantity = (name: string) => {
+    setInventory((prevInventory) =>
+      prevInventory.map((item) =>
+        item.name === name
+          ? { ...item, quantity: item.quantity > 1 ? item.quantity - 1 : 0 }
+          : item
+      )
+    );
+  }; 
+
   const deleteAll = async () => {
     try {
       const snapshot = query(collection(firestore, "inventory"));
@@ -112,7 +123,7 @@ const InventoryTable: React.FC = () => {
   const handleClose = () => setOpen(false);
 
   return (
-    <>
+    <div className="w-full">
       <InventoryModal
         isOpen={open}
         onClose={handleClose}
@@ -120,26 +131,35 @@ const InventoryTable: React.FC = () => {
       />
       <Box
         width="100%"
-        maxWidth="800px"
-        mx="auto"
         display="flex"
-        flexDirection="row"
+        flexDirection="column"
         alignItems="center"
-        justifyContent="space-between"
         mb={2}
       >
-        <Typography variant="h5">Inventory</Typography>
-        <Button variant="default" onClick={handleOpen}>
-          Add New Item
-        </Button>
+        <Box
+          width="100%"
+          display="flex"
+          flexDirection="row"
+          alignItems="center"
+          justifyContent="space-between"
+          mb={2}
+        >
+          <Typography variant="h5">Inventory</Typography>
+          <Button variant="default" onClick={handleOpen}>
+            Add New Item
+          </Button>
+        </Box>
+        <Box width="100%">
+          <InventoryList
+            inventory={inventory}
+            removeItem={removeItem}
+            incrementQuantity={incrementQuantity}
+            deleteAll={deleteAll}
+            decrementQuantity={decrementQuantity}
+          />
+        </Box>
       </Box>
-      <InventoryList
-        inventory={inventory}
-        removeItem={removeItem}
-        incrementQuantity={incrementQuantity}
-        deleteAll={deleteAll}
-      />
-    </>
+    </div>
   );
 };
 

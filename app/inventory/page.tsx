@@ -5,13 +5,18 @@ import { onAuthStateChanged } from "firebase/auth";
 import InventoryTable from "@/components/Inventory";
 import ShimmerButton from "@/components/magicui/shimmer-button";
 import Link from "next/link";
+import ShoppingList from "@/components/ShoppingList";
+import RecipeSuggestions from "@/components/RecipeSuggestions";
 
 const handleSigninPage = () => {
   window.location.href = "/signin";
 };
 
 export default function Home() {
-  const [user, setUser] = useState<null | { displayName: string; email: string }>(null);
+  const [user, setUser] = useState<null | {
+    displayName: string;
+    email: string;
+  }>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -52,6 +57,14 @@ export default function Home() {
             </p>
           </div>
           <InventoryTable />
+          <div className="w-full flex flex-col md:flex-row gap-4 h-[400px]">
+            <div className="flex-1 w-full md:w-[60%] h-full">
+              <ShoppingList />
+            </div>
+            <div className="flex-1 w-full md:w-[40%] h-full">
+              <RecipeSuggestions />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -63,7 +76,6 @@ export default function Home() {
           <h2 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-200 to-neutral-500 mb-7">
             Sign In to View Your Inventory
           </h2>
-        
         </div>
       </div>
     );

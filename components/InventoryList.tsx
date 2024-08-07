@@ -23,6 +23,7 @@ interface InventoryListProps {
   inventory: InventoryItem[];
   removeItem: (name: string) => void;
   incrementQuantity: (name: string) => void;
+  decrementQuantity: (name: string) => void; // Add this prop
   deleteAll: () => void;
 }
 
@@ -30,6 +31,7 @@ const InventoryList: React.FC<InventoryListProps> = ({
   inventory,
   removeItem,
   incrementQuantity,
+  decrementQuantity, // Add this prop
   deleteAll,
 }) => {
   return (
@@ -85,7 +87,7 @@ const InventoryList: React.FC<InventoryListProps> = ({
                     <Button
                       aria-label={`Decrement quantity for ${name}`}
                       variant="ghost"
-                      onClick={() => removeItem(name)}
+                      onClick={() => decrementQuantity(name)} // Updated function call
                       className="text-red-500">
                       <span>▼</span>
                     </Button>
@@ -107,28 +109,26 @@ const InventoryList: React.FC<InventoryListProps> = ({
           <div className="md:hidden">
             {inventory.map(({ name, quantity, price, date, imageUrl }) => (
               <div key={name} className="border-b border-gray-200 py-4">
-                <div className="flex flex-col md:flex-row items-start">
-                  <div className="w-full md:w-24 mb-2 md:mb-0">
+                <div className="flex flex-row items-start">
+                  <div className="flex-shrink-0 w-24 h-24">
                     {imageUrl ? (
                       <Image
                         src={imageUrl}
                         alt={name}
-                        width={100} // Smaller size for mobile
+                        width={100} // Adjust the size for mobile
                         height={100}
-                        className="object-cover"
+                        className="object-cover w-full h-full"
                       />
                     ) : (
-                      <div className="w-24 h-24 bg-gray-600 flex items-center justify-center text-white">
+                      <div className="w-full h-full bg-gray-600 flex items-center justify-center text-white">
                         No Image
                       </div>
                     )}
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 ml-4">
                     <div className="text-lg font-medium">{name}</div>
                     <div className="text-sm">Quantity: {quantity}</div>
-                    <div className="text-sm">
-                      Price: ${(price ?? 0).toFixed(2)}
-                    </div>
+                    <div className="text-sm">Price: ${(price ?? 0).toFixed(2)}</div>
                     <div className="text-sm">
                       Date:{" "}
                       {date
@@ -139,7 +139,7 @@ const InventoryList: React.FC<InventoryListProps> = ({
                       <Button
                         aria-label={`Decrement quantity for ${name}`}
                         variant="ghost"
-                        onClick={() => removeItem(name)}
+                        onClick={() => decrementQuantity(name)} // Updated function call
                         className="text-red-500">
                         <span>▼</span>
                       </Button>

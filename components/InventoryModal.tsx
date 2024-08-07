@@ -152,7 +152,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogOverlay className="fixed inset-0 z-50 bg-black/50" />
-      <DialogContent className="fixed left-1/2 top-1/2 z-50 max-w-3xl w-full p-6 bg-[#18181a] rounded-lg shadow-lg transform -translate-x-1/2 -translate-y-1/2">
+      <DialogContent className={`fixed left-1/2 top-1/2 z-50 w-full max-w-3xl p-6 bg-[#18181a] rounded-lg shadow-lg transform -translate-x-1/2 -translate-y-1/2 ${confirmCapture ? 'h-[80vh] overflow-auto' : ''}`}>
         <DialogHeader>
           <DialogTitle className="text-white">Add Item</DialogTitle>
           <DialogClose className="absolute top-4 right-4 p-1 text-gray-500 hover:text-white">
@@ -298,7 +298,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
             </div>
           )}
         </div>
-        <DialogFooter>
+        <DialogFooter className="flex flex-row w-full justify-between">
           <Button
             onClick={handleAdd}
             className="bg-blue-500 hover:bg-blue-600 text-white"
