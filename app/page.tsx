@@ -12,7 +12,7 @@ import Footer from "@/components/Footer";
 
 export default function LandingPage() {
   return (
-    <div className="max-w-9xl mx-auto h-screen w-full bg-black bg-dot-white/[0.2] relative flex flex-col items-center justify-start lg:mt-10 p-[20px] lg:p-20 md:mb-5">
+    <div className="max-w-9xl mx-auto h-screen w-full bg-black bg-dot-white/[0.2] relative flex flex-col items-center justify-start lg:mt-10 p-[20px] lg:p-20 lg:mb-5">
       {/* Radial gradient for the container to give a faded look */}
       <div className="absolute inset-0 flex items-center justify-center bg-black [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
 
