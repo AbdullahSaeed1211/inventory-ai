@@ -72,6 +72,7 @@ export default function SignUpForm() {
       }
     }
   };
+
   const handleInventory = () => {
     router.push("/inventory");
   };
@@ -89,7 +90,7 @@ export default function SignUpForm() {
           shimmerDuration="3s"
           borderRadius="20px"
           background="rgba(0, 0, 1, 1)"
-          className="flex items-center gap-2 px-4 py-2 text-white rounded-md border-blue-800 ">
+          className="flex items-center gap-2 px-4 py-2 text-white rounded-md border-blue-800">
           <Link href="/inventory">Go to Your Inventory</Link>
         </ShimmerButton>
       </div>
@@ -97,9 +98,9 @@ export default function SignUpForm() {
   }
 
   return (
-    <div className="h-screen flex items-center justify-center bg-black bg-dot-white/[0.2] relative">
+    <div className="h-screen w-full bg-black bg-dot-white/[0.2] relative flex flex-col items-center justify-center lg:mt-10 p-[20px] lg:p-20">
       {/* Radial gradient for the background */}
-      <div className="absolute pointer-events-none inset-0 flex items-center justify-center bg-black [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
+      <div className="absolute inset-0 flex items-center justify-center bg-black [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
 
       <div className="flex lg:flex-row flex-col items-center justify-center lg:justify-between gap-10 relative z-20 w-full max-w-7xl">
         <div className="text-white text-center lg:text-left">
@@ -121,8 +122,7 @@ export default function SignUpForm() {
             </CardHeader>
             <CardContent>
               <div className="grid gap-4">
-                {error && <p className="text-red-500">{error}</p>}{" "}
-                {/* Display error */}
+                {error && <p className="text-red-500">{error}</p>}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="first-name" className="text-white">

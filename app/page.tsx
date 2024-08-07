@@ -4,6 +4,7 @@ import home from "@/public/home.png";
 import { ArrowRightIcon } from "lucide-react";
 import Image from "next/image";
 import AnimatedShinyText from "@/components/magicui/animated-shiny-text";
+import Link from "next/link";
 
 export default function LandingPage() {
   return (
@@ -31,12 +32,14 @@ export default function LandingPage() {
         </p>
 
         {/* Get Started Button */}
-        <Button className="flex items-center gap-2 px-4 py-2 mt-5 bg-white rounded-md text-black hover:bg-white/90">
-          Get Started For Free
-          <span>
-            <ArrowRightIcon />
-          </span>
-        </Button>
+        <Link href='/inventory'>
+          <Button className="flex items-center gap-2 px-4 py-2 mt-5 bg-white rounded-md text-black hover:bg-white/90">
+            Get Started For Free
+            <span>
+              <ArrowRightIcon />
+            </span>
+          </Button>
+        </Link>
       </div>
 
       {/* Responsive Image Container */}

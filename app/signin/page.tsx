@@ -97,12 +97,12 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="h-screen flex items-center justify-center bg-black bg-dot-white/[0.2] relative">
+    <div className="h-screen w-full bg-black bg-dot-white/[0.2] relative flex flex-col items-center justify-center lg:mt-10 p-[20px] lg:p-20">
       {/* Radial gradient for the background */}
       <div className="absolute pointer-events-none inset-0 flex items-center justify-center bg-black [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
 
-      <div className="flex lg:flex-row flex-col items-center justify-center lg:justify-between  gap-10 relative z-20 w-full max-w-7xl ">
-        <div className="text-white text-center lg:text-left ">
+      <div className="flex lg:flex-row flex-col items-center justify-center lg:justify-between gap-10 relative z-20 w-full max-w-7xl">
+        <div className="text-white text-center lg:text-left">
           <h2 className="lg:text-7xl text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-200 to-neutral-500 mb-4">
             Welcome Back!
           </h2>
@@ -111,7 +111,7 @@ export default function LoginForm() {
           </p>
         </div>
 
-        <form onSubmit={handleLogin} className="w-full max-w-md ">
+        <form onSubmit={handleLogin} className="w-full max-w-md">
           <Card className="border border-[#64748b] bg-black shadow-lg hover:shadow-[0_0_20px_0_#0284c7] transition-shadow duration-300">
             <CardHeader>
               <CardTitle className="text-2xl text-white">Login</CardTitle>
