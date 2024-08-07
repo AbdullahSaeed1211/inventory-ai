@@ -51,8 +51,6 @@ const InventoryList: React.FC<InventoryListProps> = ({
                 <TableHead>Price</TableHead>
                 <TableHead className="hidden md:table-cell">Date</TableHead>
                 <TableHead>Actions</TableHead>
-                <TableHead>Increment</TableHead>
-                <TableHead>Delete All</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -63,12 +61,16 @@ const InventoryList: React.FC<InventoryListProps> = ({
                       <Image
                         src={imageUrl}
                         alt={name}
-                        className="aspect-square rounded-md object-cover"
-                        height="64"
-                        width="64"
+                        width={200} // Replace with actual image dimensions
+                        height={200}
+                        onError={(e) => {
+                          console.error("Error loading image:", e);
+                        }}
                       />
                     ) : (
-                      <span className="text-gray-500">No Image</span>
+                      <div className="w-24 h-24 bg-gray-600 flex items-center justify-center text-white">
+                        No Image
+                      </div>
                     )}
                   </TableCell>
                   <TableCell className="font-medium">{name}</TableCell>
@@ -81,7 +83,7 @@ const InventoryList: React.FC<InventoryListProps> = ({
                   </TableCell>
                   <TableCell>
                     <Button
-                      aria-label="Decrement quantity"
+                      aria-label={`Decrement quantity for ${name}`}
                       variant="ghost"
                       onClick={() => removeItem(name)}
                       className="text-red-500">
@@ -90,25 +92,18 @@ const InventoryList: React.FC<InventoryListProps> = ({
                   </TableCell>
                   <TableCell>
                     <Button
-                      aria-label="Increment quantity"
+                      aria-label={`Increment quantity for ${name}`}
                       variant="ghost"
                       onClick={() => incrementQuantity(name)}>
                       <span className="text-green-500">▲</span>
-                    </Button>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      aria-label="Delete all"
-                      variant="ghost"
-                      onClick={deleteAll}
-                      className="text-red-500">
-                      Delete All
                     </Button>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+
+          {/* Mobile view */}
           <div className="md:hidden">
             {inventory.map(({ name, quantity, price, date, imageUrl }) => (
               <div key={name} className="border-b border-gray-200 py-4">
@@ -118,41 +113,41 @@ const InventoryList: React.FC<InventoryListProps> = ({
                       <Image
                         src={imageUrl}
                         alt={name}
-                        className="aspect-square rounded-md object-cover"
-                        height="64"
-                        width="64"
+                        width={100} // Smaller size for mobile
+                        height={100}
+                        className="object-cover"
                       />
                     ) : (
-                      <span className="text-gray-500">No Image</span>
+                      <div className="w-24 h-24 bg-gray-600 flex items-center justify-center text-white">
+                        No Image
+                      </div>
                     )}
                   </div>
                   <div className="flex-1">
                     <div className="text-lg font-medium">{name}</div>
                     <div className="text-sm">Quantity: {quantity}</div>
-                    <div className="text-sm">Price: ${(price ?? 0).toFixed(2)}</div>
                     <div className="text-sm">
-                      Date: {date ? format(new Date(date.seconds * 1000), "yyyy-MM-dd") : "N/A"}
+                      Price: ${(price ?? 0).toFixed(2)}
+                    </div>
+                    <div className="text-sm">
+                      Date:{" "}
+                      {date
+                        ? format(new Date(date.seconds * 1000), "yyyy-MM-dd")
+                        : "N/A"}
                     </div>
                     <div className="flex mt-2 space-x-2">
                       <Button
-                        aria-label="Decrement quantity"
+                        aria-label={`Decrement quantity for ${name}`}
                         variant="ghost"
                         onClick={() => removeItem(name)}
                         className="text-red-500">
                         <span>▼</span>
                       </Button>
                       <Button
-                        aria-label="Increment quantity"
+                        aria-label={`Increment quantity for ${name}`}
                         variant="ghost"
                         onClick={() => incrementQuantity(name)}>
                         <span className="text-green-500">▲</span>
-                      </Button>
-                      <Button
-                        aria-label="Delete all"
-                        variant="ghost"
-                        onClick={deleteAll}
-                        className="text-red-500">
-                        Delete All
                       </Button>
                     </div>
                   </div>
@@ -166,6 +161,13 @@ const InventoryList: React.FC<InventoryListProps> = ({
         <div className="text-xs text-muted-foreground">
           Showing <strong>{inventory.length}</strong> items
         </div>
+        <Button
+          aria-label="Delete all items"
+          variant="ghost"
+          onClick={deleteAll}
+          className="text-red-500 mt-2">
+          Delete All
+        </Button>
       </CardFooter>
     </Card>
   );

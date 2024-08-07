@@ -13,13 +13,17 @@ const InventoryTable: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   const updateInventory = async () => {
-    const snapshot = query(collection(firestore, "inventory"));
-    const docs = await getDocs(snapshot);
-    const inventoryList: InventoryItem[] = [];
-    docs.forEach((doc) => {
-      inventoryList.push({ name: doc.id, ...doc.data() } as InventoryItem);
-    });
-    setInventory(inventoryList);
+    try {
+      const snapshot = query(collection(firestore, "inventory"));
+      const docs = await getDocs(snapshot);
+      const inventoryList: InventoryItem[] = [];
+      docs.forEach((doc) => {
+        inventoryList.push({ name: doc.id, ...doc.data() } as InventoryItem);
+      });
+      setInventory(inventoryList);
+    } catch (error) {
+      console.error("Failed to fetch inventory:", error);
+    }
   };
 
   useEffect(() => {
@@ -31,9 +35,9 @@ const InventoryTable: React.FC = () => {
     quantity: number;
     price: number;
     date: string;
-    image?: File;
+    imageUrl?: string; // Ensure imageUrl is included
   }) => {
-    const { itemName, quantity, price, date } = item;
+    const { itemName, quantity, price, date, imageUrl } = item;
     if (!itemName) return;
     if (quantity < 1 || quantity > 10000) {
       alert('Quantity must be between 1 and 10,000');
@@ -44,9 +48,9 @@ const InventoryTable: React.FC = () => {
     const dateObj = new Date(date);
     if (docSnap.exists()) {
       const { quantity: existingQuantity } = docSnap.data() as { quantity: number };
-      await setDoc(docRef, { quantity: Math.min(existingQuantity + quantity, 10000), price, date: dateObj });
+      await setDoc(docRef, { quantity: Math.min(existingQuantity + quantity, 10000), price, date: dateObj, imageUrl }, { merge: true });
     } else {
-      await setDoc(docRef, { quantity: Math.min(quantity, 10000), price, date: dateObj });
+      await setDoc(docRef, { quantity: Math.min(quantity, 10000), price, date: dateObj, imageUrl });
     }
     await updateInventory();
     handleClose();
@@ -54,32 +58,43 @@ const InventoryTable: React.FC = () => {
 
   const removeItem = async (item: string) => {
     if (!item) return;
-    const docRef = doc(collection(firestore, "inventory"), item);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
+    try {
+      const docRef = doc(collection(firestore, "inventory"), item);
       await deleteDoc(docRef);
+      await updateInventory();
+    } catch (error) {
+      console.error("Failed to delete item:", error);
     }
-    await updateInventory();
   };
 
   const incrementQuantity = async (item: string) => {
     if (!item) return;
-    const docRef = doc(collection(firestore, "inventory"), item);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const { quantity: existingQuantity } = docSnap.data() as { quantity: number };
-      await setDoc(docRef, { quantity: Math.min(existingQuantity + 1, 10000) }, { merge: true });
+    try {
+      const docRef = doc(collection(firestore, "inventory"), item);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const { quantity: existingQuantity } = docSnap.data() as { quantity: number };
+        await setDoc(docRef, { quantity: Math.min(existingQuantity + 1, 10000) }, { merge: true });
+        await updateInventory();
+      }
+    } catch (error) {
+      console.error("Failed to increment quantity:", error);
     }
-    await updateInventory();
   };
 
   const deleteAll = async () => {
-    const snapshot = query(collection(firestore, "inventory"));
-    const docs = await getDocs(snapshot);
-    docs.forEach(async (doc) => {
-      await deleteDoc(doc.ref);
-    });
-    await updateInventory();
+    try {
+      const snapshot = query(collection(firestore, "inventory"));
+      const docs = await getDocs(snapshot);
+      const batch = firestore.batch();
+      docs.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+      await batch.commit();
+      await updateInventory();
+    } catch (error) {
+      console.error("Failed to delete all items:", error);
+    }
   };
 
   const handleOpen = () => setOpen(true);
@@ -100,7 +115,7 @@ const InventoryTable: React.FC = () => {
         flexDirection="row"
         alignItems="center"
         justifyContent="space-between"
-        mb={2} // Add margin-bottom for spacing
+        mb={2}
       >
         <Typography variant="h5">Inventory</Typography>
         <Button variant="default" onClick={handleOpen}>

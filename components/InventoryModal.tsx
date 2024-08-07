@@ -25,7 +25,7 @@ interface InventoryModalProps {
     quantity: number;
     price: number;
     date: string;
-    image?: File;
+    imageUrl?: string; // Ensure this matches the URL type
   }) => void;
 }
 
@@ -42,47 +42,68 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
   const [useCamera, setUseCamera] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [confirmCapture, setConfirmCapture] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string>("");
   const webcamRef = useRef<Webcam>(null);
 
   const handleAdd = async () => {
-    let imageUrl: string | undefined;
-  
+    let uploadImageUrl: string | undefined = imageUrl;
+
     if (image) {
-      // Optionally upload image to Firebase if needed
+      // Upload image to Firebase
       const storage = getStorage();
       const storageRef = ref(storage, `images/${image.name}`);
       try {
-        console.log('Uploading image...'); // Debugging
+        console.log('Uploading image...');
         await uploadBytes(storageRef, image);
-        imageUrl = await getDownloadURL(storageRef);
-        console.log('Uploaded image URL:', imageUrl); // Debugging
+        uploadImageUrl = await getDownloadURL(storageRef);
+        console.log('Uploaded image URL:', uploadImageUrl);
       } catch (error) {
-        console.error('Image upload failed', error); // Debugging
+        console.error('Image upload failed', error);
       }
     }
-  
-    // Use the uploaded image URL or pass it to onAddItem
-    onAddItem({ itemName, quantity, price, date, image: imageUrl ? new File([], imageUrl) : undefined });
-  
+
+    // Pass the image URL as a string
+    onAddItem({ itemName, quantity, price, date, imageUrl: uploadImageUrl });
+
     // Reset states
     setItemName("");
     setQuantity(1);
     setPrice(0);
     setImage(undefined);
     setImagePreview(null);
+    setImageUrl("");
     setUseCamera(false);
     setConfirmCapture(false);
     onClose();
   };
 
-  const handleImageUpload = (files: FileList | null) => {
+  const handleImageUpload = async (files: FileList | null) => { // Make the function async
     if (files && files.length > 0) {
       const file = files[0];
       if (file.type.startsWith("image/") && file.size <= 5 * 1024 * 1024) {
         // 5MB limit
         setImage(file);
-        setImagePreview(URL.createObjectURL(file)); // Update preview URL
-        setUseCamera(false); // Disable camera if an image is uploaded from PC
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            setImagePreview(event.target.result as string); // Update preview URL
+          }
+        };
+        reader.readAsDataURL(file); // Read the image for preview
+
+        // Upload image to Firebase
+        const storage = getStorage();
+        const storageRef = ref(storage, `images/${file.name}`);
+        try {
+          console.log('Uploading image...');
+          await uploadBytes(storageRef, file);
+          const url = await getDownloadURL(storageRef);
+          console.log('Uploaded image URL:', url);
+          setImageUrl(url); // Update imageUrl state with the uploaded URL
+        } catch (error) {
+          console.error('Image upload failed', error);
+        }
       } else {
         alert("Please select a valid image file (less than 5MB).");
       }
@@ -102,16 +123,17 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
       const storageRef = ref(storage, `images/${file.name}`);
 
       try {
-        console.log("Uploading image..."); // Debugging
+        console.log("Uploading image...");
         await uploadBytes(storageRef, file);
         const url = await getDownloadURL(storageRef);
-        console.log("Uploaded image URL:", url); // Debugging
+        console.log("Uploaded image URL:", url);
         setImagePreview(url); // Update preview
         setImage(file); // Set image state
         setConfirmCapture(true);
+        setImageUrl(url); // Update imageUrl state with the uploaded URL
         setUseCamera(false);
       } catch (error) {
-        console.error("Image upload failed", error); // Debugging
+        console.error("Image upload failed", error);
       }
     }
   }, [webcamRef]);
