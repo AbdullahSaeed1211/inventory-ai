@@ -157,7 +157,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
         onClose();
       }}>
       <DialogOverlay className="fixed inset-0 z-50 bg-black/50" />
-      <DialogContent className="fixed left-1/2 top-1/2 z-50 w-full max-w-3xl p-6 sm:p-4 sm:mx-4 bg-white rounded-lg shadow-lg transform -translate-x-1/2 -translate-y-1/2">
+      <DialogContent className="fixed left-1/2 top-1/2 z-50 w-full max-w-3xl p-6 sm:p-4 sm:mx-4 bg-white rounded-lg shadow-lg transform -translate-x-1/2 -translate-y-1/2 h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-gray-800">Add Item</DialogTitle>
           <DialogClose className="absolute top-4 right-4 p-1 text-gray-500 hover:text-gray-800">
