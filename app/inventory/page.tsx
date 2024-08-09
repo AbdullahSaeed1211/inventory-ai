@@ -3,8 +3,6 @@ import { useState, useEffect } from "react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import InventoryTable from "@/components/Inventory";
-import ShimmerButton from "@/components/magicui/shimmer-button";
-import Link from "next/link";
 import ShoppingList from "@/components/ShoppingList";
 import RecipeSuggestions from "@/components/RecipeSuggestions";
 
