@@ -24,6 +24,7 @@ interface InventoryModalProps {
     itemName: string;
     quantity: number;
     price: number;
+    unit: string;
     date: string;
     imageUrl?: string;
   }) => void;
@@ -37,6 +38,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
   const [itemName, setItemName] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
   const [price, setPrice] = useState<number>(0);
+  const [unit, setUnit] = useState<string>("pcs");
   const [date] = useState<string>(new Date().toISOString().split("T")[0]);
   const [image, setImage] = useState<File | undefined>(undefined);
   const [useCamera, setUseCamera] = useState(false);
@@ -62,7 +64,14 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
       }
     }
 
-    onAddItem({ itemName, quantity, price, date, imageUrl: uploadImageUrl });
+    onAddItem({
+      itemName,
+      quantity,
+      unit,
+      price,
+      date,
+      imageUrl: uploadImageUrl,
+    });
 
     resetState();
     onClose(); // Close the dialog only when "Add" is clicked.
@@ -71,6 +80,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
   const resetState = () => {
     setItemName("");
     setQuantity(1);
+    setUnit("pcs");
     setPrice(0);
     setImage(undefined);
     setImagePreview(null);
@@ -182,17 +192,35 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
               <Label htmlFor="quantity" className="text-gray-600">
                 Quantity
               </Label>
-              <Input
-                id="quantity"
-                type="number"
-                value={quantity}
-                onChange={(e) =>
-                  setQuantity(
-                    Math.max(1, Math.min(Number(e.target.value), 10000))
-                  )
-                }
-                className="mt-1 bg-gray-100 text-gray-800 placeholder-gray-500"
-              />
+              <div className="flex items-center">
+                <Input
+                  id="quantity"
+                  type="number"
+                  value={quantity}
+                  onChange={(e) =>
+                    setQuantity(
+                      Math.max(1, Math.min(Number(e.target.value), 10000))
+                    )
+                  }
+                  className="mt-1 bg-gray-100 text-gray-800 placeholder-gray-500"
+                />
+                <select
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value)}
+                  className="mt-1 ml-2 bg-gray-100 text-gray-800">
+                  <option value="pieces">pcs</option>
+                  <option value="kilograms">kg</option>
+                  <option value="liters">L</option>
+                  <option value="grams">g</option>
+                  <option value="milliliters">mL</option>
+                  <option value="cups">cup</option>
+                  <option value="tablespoons">tbsp</option>
+                  <option value="teaspoons">tsp</option>
+                  <option value="ounces">oz</option>
+                  <option value="pounds">lb</option>
+                  <option value="units">unit</option>
+                </select>
+              </div>
             </div>
             <div>
               <Label htmlFor="price" className="text-gray-600">
@@ -265,7 +293,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
               )}
             </div>
           </div>
-          <div className="flex justify-center">
+          <div className="flex justify-center items-center">
             {useCamera && (
               <div className="flex flex-col items-center">
                 <Webcam
@@ -285,7 +313,6 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                 </div>
               </div>
             )}
-
             {!useCamera && imagePreview && (
               <div className="mt-4 md:mt-0 flex flex-col items-center">
                 <Image
@@ -299,7 +326,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
             )}
           </div>
         </div>
-        <DialogFooter className="flex flex-row w-full justify-between">
+        <DialogFooter className="flex flex-row w-full justify-between mt-6">
           <Button
             onClick={handleAdd}
             className="bg-blue-500 hover:bg-blue-600 text-white"

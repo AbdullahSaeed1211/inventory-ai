@@ -54,9 +54,9 @@ const Navbar = () => {
     <nav className="relative bg-black bg-dot-white/[0.2] flex items-center justify-between p-4 shadow-md  mx-auto">
       {/* Radial gradient for the navbar */}
       <div className="absolute inset-0 pointer-events-none bg-black [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
-      <div className="text-3xl font-bold z-10 bg-clip-text text-transparent bg-gradient-to-b from-neutral-200 to-neutral-500">
+      <div className="text-3xl font-bold z-10 bg-clip-text text-transparent bg-gradient-to-b from-blue-400 to-purple-500">
         <Link href="/">
-          Inventory <span className="text-[#0284c7]">AI</span>
+          Pantry Panic <span className="text-[#0284c7]"></span>
         </Link>
       </div>
       <div className="flex items-center gap-4 z-10">

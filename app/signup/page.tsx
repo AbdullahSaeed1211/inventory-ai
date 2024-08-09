@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ShimmerButton from "@/components/magicui/shimmer-button";
+import { FcGoogle } from "react-icons/fc";
 
 export default function SignUpForm() {
   const [firstName, setFirstName] = useState("");
@@ -179,9 +180,9 @@ export default function SignUpForm() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full"
+                  className="w-full inline-flex gap-x-2"
                   onClick={handleGoogleSignUp}>
-                  Sign up with Google
+                  <FcGoogle size={22} /> Continue with Google
                 </Button>
               </div>
               <div className="mt-4 text-center text-sm text-neutral-400">

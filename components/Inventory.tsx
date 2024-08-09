@@ -1,4 +1,3 @@
-"use client";
 import { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import {
@@ -9,7 +8,7 @@ import {
   setDoc,
   deleteDoc,
   getDoc,
-  writeBatch // Import writeBatch
+  writeBatch
 } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import InventoryList from "@/components/InventoryList";
@@ -44,9 +43,10 @@ const InventoryTable: React.FC = () => {
     quantity: number;
     price: number;
     date: string;
-    imageUrl?: string; // Ensure imageUrl is included
+    imageUrl?: string;
+    unit?: string; // Add unit
   }) => {
-    const { itemName, quantity, price, date, imageUrl } = item;
+    const { itemName, quantity, unit, price, date, imageUrl } = item;
     if (!itemName) return;
     if (quantity < 1 || quantity > 10000) {
       alert('Quantity must be between 1 and 10,000');
@@ -57,9 +57,9 @@ const InventoryTable: React.FC = () => {
     const dateObj = new Date(date);
     if (docSnap.exists()) {
       const { quantity: existingQuantity } = docSnap.data() as { quantity: number };
-      await setDoc(docRef, { quantity: Math.min(existingQuantity + quantity, 10000), price, date: dateObj, imageUrl }, { merge: true });
+      await setDoc(docRef, { quantity: Math.min(existingQuantity + quantity, 10000), price, date: dateObj, imageUrl, unit }, { merge: true });
     } else {
-      await setDoc(docRef, { quantity: Math.min(quantity, 10000), price, date: dateObj, imageUrl });
+      await setDoc(docRef, { quantity: Math.min(quantity, 10000), price, date: dateObj, imageUrl, unit });
     }
     await updateInventory();
     handleClose();
@@ -114,13 +114,13 @@ const InventoryTable: React.FC = () => {
     try {
       const snapshot = query(collection(firestore, "inventory"));
       const docs = await getDocs(snapshot);
-      const batch = writeBatch(firestore); // Use writeBatch to create a batch instance
+      const batch = writeBatch(firestore);
 
       docs.forEach((doc) => {
         batch.delete(doc.ref);
       });
 
-      await batch.commit(); // Commit all batched operations
+      await batch.commit();
       await updateInventory();
     } catch (error) {
       console.error("Failed to delete all items:", error);

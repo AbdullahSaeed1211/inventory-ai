@@ -21,7 +21,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Router } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { FcGoogle } from "react-icons/fc";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -81,15 +82,14 @@ export default function LoginForm() {
         <h2 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-200 to-neutral-500 mb-7">
           You are already signed in!
         </h2>
-        <ShimmerButton 
+        <ShimmerButton
           onClick={handleInventory}
           shimmerColor="#ffffff"
           shimmerSize="0.05em"
           shimmerDuration="3s"
           borderRadius="20px"
           background="rgba(0, 0, 1, 1)"
-          className="flex items-center gap-2 px-4 py-2 text-white rounded-md border-blue-800 "
-        >
+          className="flex items-center gap-2 px-4 py-2 text-white rounded-md border-blue-800 ">
           Go to Your Inventory
         </ShimmerButton>
       </div>
@@ -158,11 +158,12 @@ export default function LoginForm() {
                 <Button type="submit" className="w-full bg-[#0284c7]">
                   Login
                 </Button>
+                <Separator className="bg-neutral-400 justify-center w-full text-center" />
                 <Button
                   variant="outline"
-                  className="w-full"
+                  className="w-full inline-flex gap-x-2"
                   onClick={handleGoogleLogin}>
-                  Login with Google
+                  <FcGoogle size={22} /> Continue with Google
                 </Button>
               </div>
               <div className="mt-4 text-center text-sm text-neutral-400">

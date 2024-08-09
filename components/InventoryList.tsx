@@ -23,7 +23,7 @@ interface InventoryListProps {
   inventory: InventoryItem[];
   removeItem: (name: string) => void;
   incrementQuantity: (name: string) => void;
-  decrementQuantity: (name: string) => void; // Add this prop
+  decrementQuantity: (name: string) => void;
   deleteAll: () => void;
 }
 
@@ -31,7 +31,7 @@ const InventoryList: React.FC<InventoryListProps> = ({
   inventory,
   removeItem,
   incrementQuantity,
-  decrementQuantity, // Add this prop
+  decrementQuantity,
   deleteAll,
 }) => {
   return (
@@ -56,7 +56,7 @@ const InventoryList: React.FC<InventoryListProps> = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {inventory.map(({ name, quantity, price, date, imageUrl }) => (
+              {inventory.map(({ name, quantity, price, date, imageUrl, unit }) => (
                 <TableRow key={name}>
                   <TableCell>
                     {imageUrl ? (
@@ -76,7 +76,7 @@ const InventoryList: React.FC<InventoryListProps> = ({
                     )}
                   </TableCell>
                   <TableCell className="font-medium">{name}</TableCell>
-                  <TableCell>{quantity}</TableCell>
+                  <TableCell>{quantity} {unit}</TableCell>
                   <TableCell>${(price ?? 0).toFixed(2)}</TableCell>
                   <TableCell className="hidden md:table-cell">
                     {date
@@ -87,7 +87,7 @@ const InventoryList: React.FC<InventoryListProps> = ({
                     <Button
                       aria-label={`Decrement quantity for ${name}`}
                       variant="ghost"
-                      onClick={() => decrementQuantity(name)} // Updated function call
+                      onClick={() => decrementQuantity(name)}
                       className="text-red-500">
                       <span>▼</span>
                     </Button>
@@ -107,7 +107,7 @@ const InventoryList: React.FC<InventoryListProps> = ({
 
           {/* Mobile view */}
           <div className="md:hidden">
-            {inventory.map(({ name, quantity, price, date, imageUrl }) => (
+            {inventory.map(({ name, quantity, price, date, imageUrl, unit }) => (
               <div key={name} className="border-b border-gray-200 py-4">
                 <div className="flex flex-row items-start">
                   <div className="flex-shrink-0 w-24 h-24">
@@ -127,7 +127,7 @@ const InventoryList: React.FC<InventoryListProps> = ({
                   </div>
                   <div className="flex-1 ml-4">
                     <div className="text-lg font-medium">{name}</div>
-                    <div className="text-sm">Quantity: {quantity}</div>
+                    <div className="text-sm">Quantity: {unit} {quantity}</div>
                     <div className="text-sm">Price: ${(price ?? 0).toFixed(2)}</div>
                     <div className="text-sm">
                       Date:{" "}
@@ -139,7 +139,7 @@ const InventoryList: React.FC<InventoryListProps> = ({
                       <Button
                         aria-label={`Decrement quantity for ${name}`}
                         variant="ghost"
-                        onClick={() => decrementQuantity(name)} // Updated function call
+                        onClick={() => decrementQuantity(name)}
                         className="text-red-500">
                         <span>▼</span>
                       </Button>
