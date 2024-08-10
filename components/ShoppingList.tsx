@@ -61,7 +61,7 @@ const ShoppingList: React.FC = () => {
   };
 
   return (
-    <Card className="w-full bg-white text-black">
+    <Card className="w-full h-full bg-white text-black">
       <CardHeader>
         <CardTitle>Shopping List</CardTitle>
         <CardDescription>Keep track of what you need to buy.</CardDescription>
