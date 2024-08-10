@@ -76,11 +76,11 @@ const InventoryList: React.FC<InventoryListProps> = ({
                     )}
                   </TableCell>
                   <TableCell className="font-medium">{name}</TableCell>
-                  <TableCell>{quantity} {unit}</TableCell>
+                  <TableCell> {quantity} {unit}</TableCell>
                   <TableCell>${(price ?? 0).toFixed(2)}</TableCell>
                   <TableCell className="hidden md:table-cell">
                     {date
-                      ? format(new Date(date.seconds * 1000), "yyyy-MM-dd")
+                      ? format(new Date(date.seconds * 1000), "yyyy-M-dd")
                       : "N/A"}
                   </TableCell>
                   <TableCell>
@@ -127,7 +127,7 @@ const InventoryList: React.FC<InventoryListProps> = ({
                   </div>
                   <div className="flex-1 ml-4">
                     <div className="text-lg font-medium">{name}</div>
-                    <div className="text-sm">Quantity: {unit} {quantity}</div>
+                    <div className="text-sm">Quantity: {quantity}  {unit}</div>
                     <div className="text-sm">Price: ${(price ?? 0).toFixed(2)}</div>
                     <div className="text-sm">
                       Date:{" "}
