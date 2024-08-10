@@ -1,3 +1,4 @@
+// Home.tsx
 "use client";
 import { useState, useEffect } from "react";
 import { auth } from "@/lib/firebase";
@@ -11,10 +12,7 @@ const handleSigninPage = () => {
 };
 
 export default function Home() {
-  const [user, setUser] = useState<null | {
-    displayName: string;
-    email: string;
-  }>(null);
+  const [user, setUser] = useState<null | { displayName: string; email: string }>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -55,11 +53,11 @@ export default function Home() {
             </p>
           </div>
           <InventoryTable />
-          <div className="w-full flex flex-col md:flex-row gap-4 h-[400px]">
-            <div className="flex-1 w-full md:w-[60%] h-full">
+          <div className="w-full flex flex-col md:flex-row gap-4 h-[400px] lg:h-[400px]">
+            <div className="flex-1 w-full md:w-[60%] h-full flex flex-col">
               <ShoppingList />
             </div>
-            <div className="flex-1 w-full md:w-[40%] h-full">
+            <div className="flex-1 w-full md:w-[40%] h-full flex flex-col">
               <RecipeSuggestions />
             </div>
           </div>

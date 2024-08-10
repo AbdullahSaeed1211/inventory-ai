@@ -1,3 +1,4 @@
+// RecipeSuggestions.tsx
 'use client';
 
 import { useState, useEffect } from "react";
@@ -6,7 +7,6 @@ import { Button } from "./ui/button";
 import useGenerateRecipes from "@/hooks/useGenerateRecipes";
 import { Recipe } from "@/types";
 
-// Define a RecipeWithId type to include an id for rendering purposes
 interface RecipeWithId extends Recipe {
   id: number;
 }
@@ -19,7 +19,6 @@ const RecipeSuggestions: React.FC = () => {
 
   useEffect(() => {
     if (generatedRecipes.length > 0) {
-      // Map the generated recipes to include an ID
       const newRecipes = generatedRecipes.map((recipe, index) => ({
         id: index + 1,
         title: recipe.title,
@@ -32,7 +31,7 @@ const RecipeSuggestions: React.FC = () => {
   }, [generatedRecipes]);
 
   return (
-    <Card className="w-full bg-white text-black">
+    <Card className="w-full bg-white text-black h-full flex flex-col">
       <CardHeader>
         <CardTitle>Recipe Suggestions</CardTitle>
         <CardDescription>Discover new recipes to try.</CardDescription>
@@ -46,7 +45,7 @@ const RecipeSuggestions: React.FC = () => {
         </Button>
         {error && <p className="text-red-600 mt-2">{error}</p>}
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 overflow-y-auto">
         {recipes.length > 0 ? (
           recipes.map((recipe) => (
             <div key={recipe.id} className="mb-4">
