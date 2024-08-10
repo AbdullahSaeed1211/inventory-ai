@@ -6,3 +6,10 @@ export interface InventoryItem {
   date: { seconds: number };
   price: number;
 }
+
+
+export interface Recipe {
+  title: string;
+  description: string;
+  ingredients: string[];
+}

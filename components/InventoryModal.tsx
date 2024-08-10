@@ -208,16 +208,16 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
                   className="mt-1 ml-2 bg-gray-100 text-gray-800">
-                  <option value="pieces">pcs</option>
-                  <option value="kilograms">kg</option>
-                  <option value="liters">L</option>
-                  <option value="grams">g</option>
-                  <option value="milliliters">mL</option>
+                  <option value="pcs">pieces (pcs)</option>
+                  <option value="kg">pieces (kg)</option>
+                  <option value="L">liters (L)</option>
+                  <option value="g">grams (g)</option>
+                  <option value="mL">milliliters (mL)</option>
                   <option value="cups">cup</option>
-                  <option value="tablespoons">tbsp</option>
-                  <option value="teaspoons">tsp</option>
-                  <option value="ounces">oz</option>
-                  <option value="pounds">lb</option>
+                  <option value="tbsp">tablespoons (tbsp)</option>
+                  <option value="tsp"> teaspoons (tsp)</option>
+                  <option value="oz">ounces (oz)</option>
+                  <option value="lb"> pounds (lb)</option>
                   <option value="units">unit</option>
                 </select>
               </div>

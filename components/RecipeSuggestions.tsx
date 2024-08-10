@@ -1,63 +1,70 @@
-"use client";
-import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+'use client';
+
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "./ui/button";
+import useGenerateRecipes from "@/hooks/useGenerateRecipes";
+import { Recipe } from "@/types";
+
+// Define a RecipeWithId type to include an id for rendering purposes
+interface RecipeWithId extends Recipe {
+  id: number;
+}
 
 const RecipeSuggestions: React.FC = () => {
-  const [recipes, setRecipes] = useState([
-    {
-      id: 1,
-      title: "Spaghetti Carbonara",
-      description: "A classic Italian pasta dish.",
-    },
-    {
-      id: 2,
-      title: "Chicken Curry",
-      description: "Spicy and flavorful chicken curry.",
-    },
-    {
-      id: 3,
-      title: "Vegetable Stir-Fry",
-      description: "A healthy and quick vegetable stir-fry.",
-    },
-  ]);
+  const [recipes, setRecipes] = useState<RecipeWithId[]>([]);
+  const [hasGenerated, setHasGenerated] = useState<boolean>(false);
 
-  const handleGenerateRecipe = () => {
-    const newRecipe = {
-      id: recipes.length + 1,
-      title: "New Recipe",
-      description: "A new and exciting recipe.",
-    };
-    setRecipes([...recipes, newRecipe]);
-  };
+  const { recipes: generatedRecipes, isLoading, error, regenerateRecipes } = useGenerateRecipes();
+
+  useEffect(() => {
+    if (generatedRecipes.length > 0) {
+      // Map the generated recipes to include an ID
+      const newRecipes = generatedRecipes.map((recipe, index) => ({
+        id: index + 1,
+        title: recipe.title,
+        description: recipe.description,
+        ingredients: recipe.ingredients,
+      }));
+      setRecipes(newRecipes);
+      setHasGenerated(true);
+    }
+  }, [generatedRecipes]);
 
   return (
     <Card className="w-full bg-white text-black">
       <CardHeader>
         <CardTitle>Recipe Suggestions</CardTitle>
-        <CardDescription>
-          Discover new recipes to try.
-        </CardDescription>
+        <CardDescription>Discover new recipes to try.</CardDescription>
         <Button
           variant="outline"
-          onClick={handleGenerateRecipe}
-          className="mt-4 py-2 px-4 bg-white text-green-600 rounded">
-          Generate Recipe
+          onClick={regenerateRecipes}
+          className="mt-4 py-2 px-4 bg-white text-green-600 rounded"
+          disabled={isLoading}
+        >
+          {isLoading ? "Generating..." : "Generate Recipe"}
         </Button>
+        {error && <p className="text-red-600 mt-2">{error}</p>}
       </CardHeader>
       <CardContent>
-        {recipes.map((recipe) => (
-          <div key={recipe.id} className="mb-4">
-            <h3 className="text-lg font-semibold">{recipe.title}</h3>
-            <p className="text-sm text-gray-700">{recipe.description}</p>
-          </div>
-        ))}
+        {recipes.length > 0 ? (
+          recipes.map((recipe) => (
+            <div key={recipe.id} className="mb-4">
+              <h3 className="text-lg font-semibold">{recipe.title}</h3>
+              <p className="text-sm text-gray-700 mb-2">{recipe.description}</p>
+              <h4 className="text-md font-medium">Ingredients:</h4>
+              <ul className="list-disc pl-5">
+                {recipe.ingredients.map((ingredient, index) => (
+                  <li key={index} className="text-sm text-gray-700">
+                    {ingredient}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        ) : (
+          <p>No recipes available. Click Generate Recipe to get started!</p>
+        )}
       </CardContent>
     </Card>
   );
