@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Card,
@@ -11,22 +9,22 @@ import {
 import ShoppingListModal from "@/components/ShoppingListModal";
 import { Button } from "./ui/button";
 import { ShoppingItem } from "@/types";
-import { firestore } from "@/lib/firebase"; // Ensure you have this import
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
-import { useAuth } from "@/hooks/useAuth"; // Adjust import path as necessary
+import { firestore } from "@/lib/firebase";
+import { collection, addDoc, getDocs, doc, deleteDoc } from "firebase/firestore";
+import { useAuth } from "@/hooks/useAuth";
+import { Trash2 } from "lucide-react";
 
 const ShoppingList: React.FC = () => {
+  const { user, loading } = useAuth();
   const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { user, loading } = useAuth(); // Use auth hook to get current user
 
   const fetchShoppingItems = useCallback(async () => {
-    if (!user) return; // Ensure the user is authenticated
+    if (!user) return;
 
     try {
-      const q = query(collection(firestore, `shoppingList/${user.uid}`)); // Query scoped to user
-      const querySnapshot = await getDocs(q);
-      const items: ShoppingItem[] = querySnapshot.docs.map(doc => ({
+      const snapshot = await getDocs(collection(firestore, `shoppingList/${user.uid}/items`));
+      const items: ShoppingItem[] = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data() as Omit<ShoppingItem, "id">,
       }));
@@ -45,22 +43,25 @@ const ShoppingList: React.FC = () => {
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
-  const handleAddItem = async (item: { itemName: string; quantity: number; unit: string }) => {
-    if (!user) return; // Ensure the user is authenticated
+  const handleAddItem = async (item: {
+    itemName: string;
+    quantity: number;
+    unit: string;
+  }) => {
+    if (!user) return;
 
     try {
       const newItem: ShoppingItem = {
-        id: "", // Firestore will generate an ID
+        id: "",
         itemName: item.itemName,
         quantity: item.quantity,
         unit: item.unit,
       };
 
-      // Add new item to Firestore
-      const docRef = await addDoc(collection(firestore, `shoppingList/${user.uid}`), newItem);
-      setShoppingItems(prevItems => [
+      const docRef = await addDoc(collection(firestore, `shoppingList/${user.uid}/items`), newItem);
+      setShoppingItems((prevItems) => [
         ...prevItems,
-        { ...newItem, id: docRef.id }, // Set the ID from Firestore
+        { ...newItem, id: docRef.id },
       ]);
     } catch (error) {
       console.error("Failed to add shopping item:", error);
@@ -68,6 +69,21 @@ const ShoppingList: React.FC = () => {
       handleCloseModal();
     }
   };
+
+  // const handleDeleteItem = async (itemId: string) => {
+  //   if (!user) return;
+
+  //   try {
+  //     await deleteDoc(doc(firestore, `shoppingList/${user.uid}/items`, itemId));
+  //     setShoppingItems((prevItems) =>
+  //       prevItems.filter((item) => item.id !== itemId)
+  //     );
+  //   } catch (error) {
+  //     console.error("Failed to delete shopping item:", error);
+  //   }
+  // };
+
+  if (loading) return <p>Loading...</p>;
 
   return (
     <Card className="w-full h-full bg-white text-black">
@@ -77,7 +93,8 @@ const ShoppingList: React.FC = () => {
         <Button
           variant="outline"
           onClick={handleOpenModal}
-          className="mt-4 py-2 px-4 bg-white text-blue-600 rounded">
+          className="mt-4 py-2 px-4 bg-white text-blue-600 rounded"
+        >
           Add New Item
         </Button>
       </CardHeader>
@@ -89,9 +106,20 @@ const ShoppingList: React.FC = () => {
           </div>
         ) : (
           shoppingItems.map((item) => (
-            <div key={item.id} className="mb-4">
-              <h3 className="text-lg font-semibold">{item.itemName}</h3>
-              <p className="text-sm text-gray-700">Quantity: {item.quantity} {item.unit}</p>
+            <div key={item.id} className="flex justify-between items-center mb-4">
+              <div>
+                <h3 className="text-lg font-semibold">{item.itemName}</h3>
+                <p className="text-sm text-gray-700">
+                  Quantity: {item.quantity} {item.unit}
+                </p>
+              </div>
+              {/* <Button
+                variant="ghost"
+                className="text-red-500"
+                onClick={() => handleDeleteItem(item.id)}
+              >
+                <Trash2 />
+              </Button> */}
             </div>
           ))
         )}

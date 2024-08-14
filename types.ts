@@ -15,7 +15,7 @@ export interface Recipe {
 }
 
 export interface ShoppingItem {
-  id: string; // Use the document ID as the unique identifier
+  id: string; 
   itemName: string;
   quantity: number;
   unit: string;
