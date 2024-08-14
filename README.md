@@ -1,7 +1,3 @@
-Here's a template for a README file that you can use for your project. Adjust the sections according to your project's specifics.
-
----
-
 # Inventory and Shopping List Management
 
 A modern web application for managing your inventory and shopping list using React, Firebase, and TypeScript. This application allows users to track their inventory items, manage their shopping lists, and perform CRUD operations seamlessly.
