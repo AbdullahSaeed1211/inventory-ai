@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -12,33 +12,42 @@ import ShoppingListModal from "@/components/ShoppingListModal";
 import { Button } from "./ui/button";
 import { ShoppingItem } from "@/types";
 import { firestore } from "@/lib/firebase"; // Ensure you have this import
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import { useAuth } from "@/hooks/useAuth"; // Adjust import path as necessary
 
 const ShoppingList: React.FC = () => {
   const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user, loading } = useAuth(); // Use auth hook to get current user
+
+  const fetchShoppingItems = useCallback(async () => {
+    if (!user) return; // Ensure the user is authenticated
+
+    try {
+      const q = query(collection(firestore, `shoppingList/${user.uid}`)); // Query scoped to user
+      const querySnapshot = await getDocs(q);
+      const items: ShoppingItem[] = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data() as Omit<ShoppingItem, "id">,
+      }));
+      setShoppingItems(items);
+    } catch (error) {
+      console.error("Failed to fetch shopping items:", error);
+    }
+  }, [user]);
 
   useEffect(() => {
-    const fetchShoppingItems = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(firestore, "shoppingList"));
-        const items: ShoppingItem[] = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data() as Omit<ShoppingItem, "id">,
-        }));
-        setShoppingItems(items);
-      } catch (error) {
-        console.error("Failed to fetch shopping items:", error);
-      }
-    };
-
-    fetchShoppingItems();
-  }, []);
+    if (!loading) {
+      fetchShoppingItems();
+    }
+  }, [loading, fetchShoppingItems]);
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
   const handleAddItem = async (item: { itemName: string; quantity: number; unit: string }) => {
+    if (!user) return; // Ensure the user is authenticated
+
     try {
       const newItem: ShoppingItem = {
         id: "", // Firestore will generate an ID
@@ -48,7 +57,7 @@ const ShoppingList: React.FC = () => {
       };
 
       // Add new item to Firestore
-      const docRef = await addDoc(collection(firestore, "shoppingList"), newItem);
+      const docRef = await addDoc(collection(firestore, `shoppingList/${user.uid}`), newItem);
       setShoppingItems(prevItems => [
         ...prevItems,
         { ...newItem, id: docRef.id }, // Set the ID from Firestore

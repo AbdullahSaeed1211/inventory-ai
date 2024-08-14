@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Box, Typography } from "@mui/material";
 import {
   collection,
@@ -15,14 +15,20 @@ import InventoryList from "@/components/InventoryList";
 import { InventoryItem } from "@/types";
 import { Button } from "@/components/ui/button";
 import InventoryModal from "@/components/InventoryModal";
+import { useAuth } from "@/hooks/useAuth";
 
 const InventoryTable: React.FC = () => {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [open, setOpen] = useState(false);
+  const { user, loading } = useAuth();
 
-  const updateInventory = async () => {
+  const updateInventory = useCallback(async () => {
+    if (!user) return;
+
     try {
-      const snapshot = query(collection(firestore, "inventory"));
+      const snapshot = query(
+        collection(firestore, `inventory/${user.uid}/items`)
+      );
       const docs = await getDocs(snapshot);
       const inventoryList: InventoryItem[] = [];
       docs.forEach((doc) => {
@@ -32,11 +38,13 @@ const InventoryTable: React.FC = () => {
     } catch (error) {
       console.error("Failed to fetch inventory:", error);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
-    updateInventory();
-  }, []);
+    if (!loading) {
+      updateInventory();
+    }
+  }, [user, loading, updateInventory]);
 
   const addItem = async (item: {
     itemName: string;
@@ -44,31 +52,52 @@ const InventoryTable: React.FC = () => {
     price: number;
     date: string;
     imageUrl?: string;
-    unit?: string; // Add unit
+    unit?: string;
   }) => {
+    if (!user) return;
+
     const { itemName, quantity, unit, price, date, imageUrl } = item;
     if (!itemName) return;
     if (quantity < 1 || quantity > 10000) {
-      alert('Quantity must be between 1 and 10,000');
+      alert("Quantity must be between 1 and 10,000");
       return;
     }
-    const docRef = doc(collection(firestore, "inventory"), itemName);
+
+    const docRef = doc(firestore, `inventory/${user.uid}/items`, itemName);
     const docSnap = await getDoc(docRef);
     const dateObj = new Date(date);
     if (docSnap.exists()) {
-      const { quantity: existingQuantity } = docSnap.data() as { quantity: number };
-      await setDoc(docRef, { quantity: Math.min(existingQuantity + quantity, 10000), price, date: dateObj, imageUrl, unit }, { merge: true });
+      const { quantity: existingQuantity } = docSnap.data() as {
+        quantity: number;
+      };
+      await setDoc(
+        docRef,
+        {
+          quantity: Math.min(existingQuantity + quantity, 10000),
+          price,
+          date: dateObj,
+          imageUrl,
+          unit,
+        },
+        { merge: true }
+      );
     } else {
-      await setDoc(docRef, { quantity: Math.min(quantity, 10000), price, date: dateObj, imageUrl, unit });
+      await setDoc(docRef, {
+        quantity: Math.min(quantity, 10000),
+        price,
+        date: dateObj,
+        imageUrl,
+        unit,
+      });
     }
     await updateInventory();
     handleClose();
   };
 
   const removeItem = async (item: string) => {
-    if (!item) return;
+    if (!user) return;
     try {
-      const docRef = doc(collection(firestore, "inventory"), item);
+      const docRef = doc(firestore, `inventory/${user.uid}/items`, item);
       await deleteDoc(docRef);
       await updateInventory();
     } catch (error) {
@@ -77,13 +106,19 @@ const InventoryTable: React.FC = () => {
   };
 
   const incrementQuantity = async (item: string) => {
-    if (!item) return;
+    if (!user || !item) return;
     try {
-      const docRef = doc(collection(firestore, "inventory"), item);
+      const docRef = doc(firestore, `inventory/${user.uid}/items`, item);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        const { quantity: existingQuantity } = docSnap.data() as { quantity: number };
-        await setDoc(docRef, { quantity: Math.min(existingQuantity + 1, 10000) }, { merge: true });
+        const { quantity: existingQuantity } = docSnap.data() as {
+          quantity: number;
+        };
+        await setDoc(
+          docRef,
+          { quantity: Math.min(existingQuantity + 1, 10000) },
+          { merge: true }
+        );
         await updateInventory();
       }
     } catch (error) {
@@ -92,12 +127,14 @@ const InventoryTable: React.FC = () => {
   };
 
   const decrementQuantity = async (name: string) => {
-    if (!name) return;
+    if (!user || !name) return;
     try {
-      const docRef = doc(collection(firestore, "inventory"), name);
+      const docRef = doc(firestore, `inventory/${user.uid}/items`, name);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        const { quantity: existingQuantity } = docSnap.data() as { quantity: number };
+        const { quantity: existingQuantity } = docSnap.data() as {
+          quantity: number;
+        };
         if (existingQuantity > 1) {
           await setDoc(docRef, { quantity: existingQuantity - 1 }, { merge: true });
         } else {
@@ -111,8 +148,9 @@ const InventoryTable: React.FC = () => {
   };
 
   const deleteAll = async () => {
+    if (!user) return;
     try {
-      const snapshot = query(collection(firestore, "inventory"));
+      const snapshot = query(collection(firestore, `inventory/${user.uid}/items`));
       const docs = await getDocs(snapshot);
       const batch = writeBatch(firestore);
 
