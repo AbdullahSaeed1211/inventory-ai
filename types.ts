@@ -14,8 +14,6 @@ export interface Recipe {
   ingredients: string[];
 }
 
-// types.ts or wherever your types are defined
-
 export interface ShoppingItem {
   id: string; // Use the document ID as the unique identifier
   itemName: string;

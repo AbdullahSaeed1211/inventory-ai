@@ -1,4 +1,3 @@
-// src/lib/hooks/useAuth.ts
 import { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 
@@ -16,5 +15,7 @@ export const useAuth = () => {
     return () => unsubscribe();
   }, []);
 
-  return { user, loading };
+  const userId = user?.uid || null; // Extract userId directly
+
+  return { user, userId, loading }; // Return userId for easier access
 };

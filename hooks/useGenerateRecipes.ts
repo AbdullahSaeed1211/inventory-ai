@@ -3,6 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { collection, getDocs, query } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { Recipe, InventoryItem } from "@/types";
+import { useAuth } from '@/hooks/useAuth'; // Assuming you have an auth hook for fetching userId
 
 type ErrorType = string | null;
 
@@ -10,17 +11,20 @@ const useGenerateRecipes = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<ErrorType>(null);
+  const { userId } = useAuth(); // Fetch userId from auth context
 
   const fetchInventoryData = useCallback(async (): Promise<InventoryItem[]> => {
     try {
-      const inventorySnapshot = await getDocs(query(collection(firestore, 'inventory')));
+      if (!userId) throw new Error('User not authenticated');
+
+      const inventorySnapshot = await getDocs(query(collection(firestore, `inventory/${userId}/items`)));
       const inventoryItems = inventorySnapshot.docs.map(doc => doc.data()) as InventoryItem[];
       return inventoryItems;
     } catch (err) {
       console.error('Error fetching inventory:', err);
       throw new Error('Failed to fetch inventory data.');
     }
-  }, []);
+  }, [userId]);
 
   const handleGenerateRecipes = useCallback(async () => {
     try {
@@ -39,7 +43,6 @@ const useGenerateRecipes = () => {
       });
 
       const inventoryData = await fetchInventoryData();
-      // Properly format ingredients text
       const ingredientsText = inventoryData
         .map(item => `${item.name}: ${item.quantity} ${item.unit || ''}`)
         .filter(ingredient => !ingredient.startsWith('undefined')) // Filter out any undefined units
@@ -62,13 +65,10 @@ const useGenerateRecipes = () => {
       `;
 
       const result = await model.generateContent(promptText);
-
-      // Check if candidates is defined and has at least one entry
       const candidates = result.response?.candidates;
+      
       if (candidates && candidates.length > 0) {
         const generatedText = candidates[0]?.content?.parts[0]?.text;
-
-        // Log the result for debugging
         console.log('Generated Text:', generatedText);
 
         if (typeof generatedText === 'string') {

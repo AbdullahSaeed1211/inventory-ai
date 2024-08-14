@@ -24,21 +24,22 @@ const InventoryTable: React.FC = () => {
 
   const updateInventory = useCallback(async () => {
     if (!user) return;
-
+  
     try {
-      const snapshot = query(
-        collection(firestore, `inventory/${user.uid}/items`)
-      );
+      const snapshot = query(collection(firestore, `inventory/${user.uid}/items`));
       const docs = await getDocs(snapshot);
       const inventoryList: InventoryItem[] = [];
       docs.forEach((doc) => {
+        console.log("Document data:", doc.data()); // Log document data
         inventoryList.push({ name: doc.id, ...doc.data() } as InventoryItem);
       });
+      console.log("Fetched inventory list:", inventoryList); // Log the full inventory list
       setInventory(inventoryList);
     } catch (error) {
       console.error("Failed to fetch inventory:", error);
     }
   }, [user]);
+  
 
   useEffect(() => {
     if (!loading) {
@@ -55,43 +56,47 @@ const InventoryTable: React.FC = () => {
     unit?: string;
   }) => {
     if (!user) return;
-
+  
     const { itemName, quantity, unit, price, date, imageUrl } = item;
     if (!itemName) return;
     if (quantity < 1 || quantity > 10000) {
       alert("Quantity must be between 1 and 10,000");
       return;
     }
-
+  
     const docRef = doc(firestore, `inventory/${user.uid}/items`, itemName);
-    const docSnap = await getDoc(docRef);
     const dateObj = new Date(date);
-    if (docSnap.exists()) {
-      const { quantity: existingQuantity } = docSnap.data() as {
-        quantity: number;
-      };
-      await setDoc(
-        docRef,
-        {
-          quantity: Math.min(existingQuantity + quantity, 10000),
+    try {
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const { quantity: existingQuantity } = docSnap.data() as {
+          quantity: number;
+        };
+        await setDoc(
+          docRef,
+          {
+            quantity: Math.min(existingQuantity + quantity, 10000),
+            price,
+            date: dateObj,
+            imageUrl,
+            unit,
+          },
+          { merge: true }
+        );
+      } else {
+        await setDoc(docRef, {
+          quantity: Math.min(quantity, 10000),
           price,
           date: dateObj,
           imageUrl,
           unit,
-        },
-        { merge: true }
-      );
-    } else {
-      await setDoc(docRef, {
-        quantity: Math.min(quantity, 10000),
-        price,
-        date: dateObj,
-        imageUrl,
-        unit,
-      });
+        });
+      }
+      await updateInventory();
+      handleClose();
+    } catch (error) {
+      console.error("Error adding item:", error);
     }
-    await updateInventory();
-    handleClose();
   };
 
   const removeItem = async (item: string) => {
